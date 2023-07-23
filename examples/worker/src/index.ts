@@ -19,6 +19,6 @@ export default {
 		env: Env,
 		ctx: ExecutionContext
 	): Promise<Response> => {
-		return new Response('Noop SWR');
+		return new Response(`Hello worker! ${new Date().toISOString()}`);
 	}),
 };
