@@ -1,0 +1,53 @@
+{
+	"name": "workers-swr",
+	"version": "0.0.0",
+	"type": "module",
+	"main": "dist/index.js",
+	"scripts": {
+		"lint": "eslint src",
+		"types-check": "tsc --noEmit",
+		"build:js": "esbuild --bundle --format=esm ./src/index.ts --outfile=./dist/index.js",
+		"build:types": "tsc --emitDeclarationOnly --declaration --outDir ./dist",
+		"build:js:watch": "npm run build -- --watch=forever",
+		"build:types:watch": "npm run build:types -- --watch",
+		"build": "npm run build:js && npm run build:types",
+		"build:watch": "npm run build:js:watch & npm run build:types:watch",
+		"test": "npx vitest --config vitest.config.ts"
+	},
+	"files": [
+		"bin",
+		"dist",
+		"templates"
+	],
+	"keywords": [
+		"cloudflare",
+		"cloudflare pages",
+		"edge",
+		"nextjs"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/cloudflare/next-on-pages#readme",
+	"bugs": {
+		"url": "https://github.com/cloudflare/next-on-pages/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cloudflare/next-on-pages.git"
+	},
+	"dependencies": {
+		"esbuild": "^0.15.3"
+	},
+	"peerDependencies": {
+		"vercel": "^30.0.0",
+		"wrangler": "^3.0.0"
+	},
+	"devDependencies": {
+		"tsconfig": "*",
+		"@cloudflare/workers-types": "^4.20230404.0",
+		"@tsconfig/strictest": "^2.0.0",
+		"eslint": "^8.35.0",
+		"typescript": "^5.0.4",
+		"vitest": "^0.32.2",
+		"vitest-environment-miniflare": "^2.13.0"
+	}
+}
