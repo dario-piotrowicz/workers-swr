@@ -11,4 +11,21 @@ describe("processCacheControlForWorkersCache", () => {
     const result = processCacheControlForWorkersCache("");
     expect(result).toEqual(null);
   });
+
+  it("should return the Cache-Control header untouched if no swr/sie directives are provided", () => {
+    [
+      "no-store",
+      "no-cache",
+      "max-age=1",
+      "private, max-age=600",
+      "public, max-age=31536000",
+      "max-age=1800, must-revalidate",
+      "private, max-age=30, vary=accept-language"
+    ].forEach(cacheControl => {
+      const result = processCacheControlForWorkersCache(cacheControl);
+      expect(result).toEqual({
+        'Cache-Control': cacheControl
+      });
+    })
+  });
 });
