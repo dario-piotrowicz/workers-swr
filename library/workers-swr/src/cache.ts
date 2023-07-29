@@ -28,3 +28,16 @@ export function cacheResponse(
     ctx.waitUntil(cache.put(request, responseToBeCached));
   }
 }
+
+export function revalidateResponse(
+  cache: Cache,
+  runOriginalFetchHandlerFn: () => Response | Promise<Response>,
+  request: Request<unknown, CfProperties<unknown>>,
+  ctx: ExecutionContext,
+): void {
+  ctx.waitUntil((async () => {
+    const revalidatedResponse = await runOriginalFetchHandlerFn();
+    console.log('response revalidated');
+    cacheResponse(cache, revalidatedResponse, request, ctx);
+  })());
+}
