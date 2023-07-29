@@ -45,7 +45,7 @@ export function processCacheControlForWorkersCache(
       .map(([directive, value]) => {
         const dirValue =
           directive === "max-age"
-            ? (maxAgeValue ?? 0) + (swrValue ?? 0) + (sieValue ?? 0)
+            ? (maxAgeValue ?? 0) + Math.max(swrValue ?? 0, sieValue ?? 0)
             : value;
         return [directive, dirValue].filter(Boolean).join("=");
       })
