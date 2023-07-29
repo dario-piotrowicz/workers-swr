@@ -1,3 +1,5 @@
+import { ResponseCachingValues } from "./cache";
+
 /**
  * Generates headers to apply to the response before adding it to the cache, this includes
  * updating the Cache-Control header and also add other (metadata used just for workers-swr) headers.
@@ -115,13 +117,6 @@ export function generateUserHeadersFromWorkersCache(
   return result;
 }
 
-type ResponseCachingValues = {
-  age: number;
-  "max-age": number;
-  swr?: number;
-  sie?: number;
-};
-
 /**
  * Extracts the caching values from a cached response so that they can be used to
  * determine if the cached response should be returned (satisfies the caching criteria) or not
@@ -154,11 +149,11 @@ export function extractCachingValues(
 
   const realMaxAgeValue = getRealMaxAgeValue(maxAgeValue, swrValue, sieValue);
 
-  if(realMaxAgeValue<=0) return null;
+  if (realMaxAgeValue <= 0) return null;
 
   return {
     age: ageValue,
-    "max-age": realMaxAgeValue,
+    maxAge: realMaxAgeValue,
     ...(isNaN(swrValue) ? {} : { swr: swrValue }),
     ...(isNaN(sieValue) ? {} : { sie: sieValue }),
   };

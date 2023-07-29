@@ -1,6 +1,11 @@
 import { cacheResponse, revalidateResponse } from "./cache";
 import { extractCachingValues } from "./headers";
-import { generateResponseForUser } from "./response";
+import {
+  generateResponseForUser,
+  isResponseFresh,
+  shouldResponseBeRevalidated,
+  shouldResponseOverrideError,
+} from "./response";
 
 export function withSWR<Env extends unknown>(
   fetchHandler: ExportedHandlerFetchHandler<Env, unknown>
@@ -26,10 +31,10 @@ export function withSWR<Env extends unknown>(
       ? extractCachingValues(cachedResponse)
       : null;
     if (cachingValues) {
-      if(cachingValues.age <= cachingValues["max-age"]) {
+      if (isResponseFresh(cachingValues)) {
         return generateResponseForUser(cachedResponse!);
       }
-      if(cachingValues.age <= cachingValues["max-age"] + (cachingValues.swr ?? 0)) {
+      if (shouldResponseBeRevalidated(cachingValues)) {
         revalidateResponse(swrCache, runOriginalFetchHandler, request, ctx);
         return generateResponseForUser(cachedResponse!);
       }
@@ -39,15 +44,17 @@ export function withSWR<Env extends unknown>(
     try {
       freshResponse = await runOriginalFetchHandler();
     } catch (e) {
-      if(cachingValues && cachingValues.age > cachingValues["max-age"] && cachingValues.age <= cachingValues["max-age"] + (cachingValues.sie ?? 0)) {
+      if (cachingValues && shouldResponseOverrideError(cachingValues)) {
         return cachedResponse!;
       }
       throw e;
     }
-    if(freshResponse.status >= 500) {
-      if(cachingValues && cachingValues.age > cachingValues["max-age"] && cachingValues.age <= cachingValues["max-age"] + (cachingValues.sie ?? 0)) {
-        return cachedResponse!;
-      }
+    if (
+      freshResponse.status >= 500 &&
+      cachingValues &&
+      shouldResponseOverrideError(cachingValues)
+    ) {
+      return cachedResponse!;
     }
 
     cacheResponse(swrCache, freshResponse, request, ctx);

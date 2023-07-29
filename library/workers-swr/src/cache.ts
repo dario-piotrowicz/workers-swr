@@ -33,11 +33,20 @@ export function revalidateResponse(
   cache: Cache,
   runOriginalFetchHandlerFn: () => Response | Promise<Response>,
   request: Request<unknown, CfProperties<unknown>>,
-  ctx: ExecutionContext,
+  ctx: ExecutionContext
 ): void {
-  ctx.waitUntil((async () => {
-    const revalidatedResponse = await runOriginalFetchHandlerFn();
-    console.log('response revalidated');
-    cacheResponse(cache, revalidatedResponse, request, ctx);
-  })());
+  ctx.waitUntil(
+    (async () => {
+      const revalidatedResponse = await runOriginalFetchHandlerFn();
+      console.log("response revalidated");
+      cacheResponse(cache, revalidatedResponse, request, ctx);
+    })()
+  );
 }
+
+export type ResponseCachingValues = {
+  age: number;
+  maxAge: number;
+  swr?: number;
+  sie?: number;
+};
