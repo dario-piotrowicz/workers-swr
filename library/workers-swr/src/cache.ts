@@ -18,13 +18,12 @@ export function cacheResponse(
   ctx: ExecutionContext
 ): void {
   const responseToBeCached = response.clone();
-  const cacheControlForWorkersCache = processCacheControlForWorkersCache(
+  const headersForWorkersCache = processCacheControlForWorkersCache(
     response.headers.get("Cache-Control")
   );
-  if (cacheControlForWorkersCache) {
-    responseToBeCached.headers.set(
-      "Cache-Control",
-      cacheControlForWorkersCache
+  if (headersForWorkersCache) {
+    Object.entries(headersForWorkersCache).forEach(([header, headerValue]) =>
+      responseToBeCached.headers.set(header, headerValue)
     );
     ctx.waitUntil(cache.put(request, responseToBeCached));
   }
