@@ -38,7 +38,6 @@ export function revalidateResponse(
   ctx.waitUntil(
     (async () => {
       const revalidatedResponse = await runOriginalFetchHandlerFn();
-      console.log("response revalidated");
       cacheResponse(cache, revalidatedResponse, request, ctx);
     })()
   );
