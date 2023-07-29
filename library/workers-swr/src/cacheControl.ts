@@ -7,7 +7,7 @@
  *  If the response's Cache-Control is:
  *    "max-age=10, stale-while-revalidate=5, stale-if-error=3"
  *  it needs to be stored as:
- *    "max-age=18" (10 + 5 + 3)
+ *    "max-age=15" (10 + Max(5, 3))
  *  and we need to store in separate headers the
  *  stale-while-revalidate and stale-if-error directives
  *
