@@ -1,4 +1,4 @@
-import { processCacheControlForWorkersCache } from "./cacheControl";
+import { generateHeadersForWorkersCache } from "./cacheControl";
 
 /**
  * caches a response if it has a Cache-Control header
@@ -18,7 +18,7 @@ export function cacheResponse(
   ctx: ExecutionContext
 ): void {
   const responseToBeCached = response.clone();
-  const headersForWorkersCache = processCacheControlForWorkersCache(
+  const headersForWorkersCache = generateHeadersForWorkersCache(
     response.headers.get("Cache-Control")
   );
   if (headersForWorkersCache) {

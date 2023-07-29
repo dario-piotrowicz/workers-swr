@@ -1,36 +1,38 @@
 /**
- * Processes the Cache-Control header for storing in the workers cache, this is necessary
- * because the workers cache doesn't handle `stale-while-revalidate` and `stale-if-error`,
- * so we need to adjust the max-age accordingly to account for such values
+ * Generates headers to apply to the response before adding it to the cache, this includes
+ * updating the Cache-Control header and also add other (metadata used just for workers-swr) headers.
  *
- * e.g.
+ * This is necessary because the workers cache doesn't handle `stale-while-revalidate` and `stale-if-error`,
+ * so we need to adjust things accordingly
+ *
+ * For example:
  *  If the response's Cache-Control is:
  *    "max-age=10, stale-while-revalidate=5, stale-if-error=3"
- *  it needs to be stored as:
+ *  it needs to be updated to:
  *    "max-age=15" (10 + Max(5, 3))
- *  and we need to store in separate headers the
- *  stale-while-revalidate and stale-if-error directives
+ *  (so that the response is correctly held in the cache for 15 seconds and not evicted after 10)
+ *  also the stale-while-revalidate and stale-if-error directives need to be saved in separate headers
+ *  so that we can use them later on
  *
- * Note: storing the stale-while-revalidate and stale-if-error directives separately
- *       is not really necessary but it's done to future proof this solution, if in
- *       the future the workers cache decides to honor the directives, having them
- *       stored separately would make this solution still work as intended, if they
- *       were instead left in the Cache-Control header the lifespan of the cached
- *       response would get unintentionally increased (as each directive would be
- *       accounting for twice)
+ * Note: storing the stale-while-revalidate and stale-if-error directives separately is not really
+ *       necessary, we could have kept them in the Cache-Control header, but we don't to future proof
+ *       the solution, if in the future the workers cache decides to honor the directives, having them
+ *       stored separately would make this solution still work as intended, if they were instead left
+ *       in the Cache-Control header the lifespan of the cached response would get unintentionally
+ *       increased (as each directive would be accounted for twice)
  *
- * @param requestCacheControl Cache control header from the request
- * @returns headers to apply to the request before storing it in the workers cache, or null
+ * @param responseCacheControl Cache control header from the response
+ * @returns headers to apply to the response before storing it in the workers cache, or null
  *          if no cache control was provided
  */
-export function processCacheControlForWorkersCache(
-  requestCacheControl: string | null
+export function generateHeadersForWorkersCache(
+  responseCacheControl: string | null
 ): HeadersForWorkersCache | null {
-  if (!requestCacheControl) {
+  if (!responseCacheControl) {
     return null;
   }
 
-  const directives = collectDirectivesAndValues(requestCacheControl);
+  const directives = collectDirectivesAndValues(responseCacheControl);
 
   const maxAgeValue = getNumberValue(directives, "max-age");
   const swrValue = getNumberValue(directives, "stale-while-revalidate");

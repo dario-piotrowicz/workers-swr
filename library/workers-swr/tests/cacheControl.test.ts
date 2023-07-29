@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { processCacheControlForWorkersCache } from "../src/cacheControl";
+import { generateHeadersForWorkersCache } from "../src/cacheControl";
 
-describe("processCacheControlForWorkersCache", () => {
+describe("generateHeadersForWorkersCache", () => {
   it("should return null if no Cache-Control header is provided", () => {
-    const result = processCacheControlForWorkersCache(null);
+    const result = generateHeadersForWorkersCache(null);
     expect(result).toEqual(null);
   });
 
   it("should return null if an empty Cache-Control header is provided", () => {
-    const result = processCacheControlForWorkersCache("");
+    const result = generateHeadersForWorkersCache("");
     expect(result).toEqual(null);
   });
 
@@ -22,7 +22,7 @@ describe("processCacheControlForWorkersCache", () => {
       "max-age=1800, must-revalidate",
       "private, max-age=30, vary=accept-language",
     ].forEach((cacheControl) => {
-      const result = processCacheControlForWorkersCache(cacheControl);
+      const result = generateHeadersForWorkersCache(cacheControl);
       expect(result).toEqual({
         "Cache-Control": cacheControl,
       });
@@ -31,7 +31,7 @@ describe("processCacheControlForWorkersCache", () => {
 
   describe("stale-while-revalidate", () => {
     it("should handle a zero stale-while-revalidate directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-while-revalidate=0"
       );
       expect(result).toEqual({
@@ -41,7 +41,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a non zero stale-while-revalidate directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-while-revalidate=5"
       );
       expect(result).toEqual({
@@ -51,7 +51,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a non zero stale-while-revalidate directive present as the first directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "stale-while-revalidate=2, immutable, max-age=3"
       );
       expect(result).toEqual({
@@ -61,7 +61,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a non zero stale-while-revalidate directive followed by a different directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=1, stale-while-revalidate=2, public"
       );
       expect(result).toEqual({
@@ -73,7 +73,7 @@ describe("processCacheControlForWorkersCache", () => {
 
   describe("stale-if-error", () => {
     it("should handle a zero stale-if-error directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-if-error=0"
       );
       expect(result).toEqual({
@@ -83,7 +83,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a non zero stale-if-error directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-if-error=5"
       );
       expect(result).toEqual({
@@ -93,7 +93,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a non zero stale-if-error directive present as the first directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "stale-if-error=2, immutable, max-age=3"
       );
       expect(result).toEqual({
@@ -103,7 +103,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a non zero stale-if-error directive followed by a different directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=1, stale-if-error=2, public"
       );
       expect(result).toEqual({
@@ -115,7 +115,7 @@ describe("processCacheControlForWorkersCache", () => {
 
   describe("stale-while-revalidate + stale-if-error", () => {
     it("should handle a zero stale-while-revalidate directive and a zero stale-if-error directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-while-revalidate=0, stale-if-error=0"
       );
       expect(result).toEqual({
@@ -126,7 +126,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a non zero stale-while-revalidate directive and a zero stale-if-error directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-while-revalidate=5, stale-if-error=0"
       );
       expect(result).toEqual({
@@ -137,7 +137,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a zero stale-while-revalidate directive and a non zero stale-if-error directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-while-revalidate=0, stale-if-error=5"
       );
       expect(result).toEqual({
@@ -148,7 +148,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should handle a non zero stale-while-revalidate directive and a non zero stale-if-error directive", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-while-revalidate=5, stale-if-error=5"
       );
       expect(result).toEqual({
@@ -159,7 +159,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should pick the use the stale-while-revalidate directive value over a smaller stale-if-error directive value", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=10, stale-while-revalidate=50, stale-if-error=33"
       );
       expect(result).toEqual({
@@ -170,7 +170,7 @@ describe("processCacheControlForWorkersCache", () => {
     });
 
     it("should pick the use the stale-if-error directive value over a smaller stale-while-revalidate directive value", () => {
-      const result = processCacheControlForWorkersCache(
+      const result = generateHeadersForWorkersCache(
         "max-age=5, stale-while-revalidate=13, stale-if-error=15"
       );
       expect(result).toEqual({
