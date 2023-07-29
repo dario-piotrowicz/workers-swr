@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  extractCachingValues,
   generateHeadersForWorkersCache,
   generateUserHeadersFromWorkersCache,
 } from "../src/headers";
@@ -253,6 +254,108 @@ describe("generateUserHeadersFromWorkersCache", () => {
     expect(result).toEqual({
       "cache-control":
         "max-age=25, stale-while-revalidate=25, stale-if-error=55",
+    });
+  });
+});
+
+describe("extractCachingValues", () => {
+  it("should return null if the response doesn't have any headers", () => {
+    const result = extractCachingValues(new Response());
+    expect(result).toBe(null);
+  });
+
+  it("should return null if the response doesn't have an age header", () => {
+    const result = extractCachingValues(
+      new Response("", {
+        headers: {
+          "Cache-Control": "max-age=1",
+          "x-workers-swr-metadata-stale-while-revalidate": "2",
+          "x-workers-swr-metadata-stale-if-error": "3",
+        },
+      })
+    );
+    expect(result).toBe(null);
+  });
+
+  it("should return null if the response doesn't have a max-age cache control directive", () => {
+    const result = extractCachingValues(
+      new Response("", {
+        headers: {
+          age: "4",
+          "Cache-Control": "public",
+          "x-workers-swr-metadata-stale-while-revalidate": "2",
+          "x-workers-swr-metadata-stale-if-error": "3",
+        },
+      })
+    );
+    expect(result).toBe(null);
+  });
+
+  it("should return the age and max-age caching values", () => {
+    const result = extractCachingValues(
+      new Response("", {
+        headers: {
+          age: "4",
+          "Cache-Control": "max-age=5",
+        },
+      })
+    );
+    expect(result).toEqual({
+      age: 4,
+      "max-age": 5,
+    });
+  });
+
+  it("should return the age, (the real) max-age and swr caching values", () => {
+    const result = extractCachingValues(
+      new Response("", {
+        headers: {
+          age: "4",
+          "Cache-Control": "max-age=3",
+          "x-workers-swr-metadata-stale-while-revalidate": "2",
+        },
+      })
+    );
+    expect(result).toEqual({
+      age: 4,
+      "max-age": 1,
+      swr: 2,
+    });
+  });
+
+  it("should return the age, (the real) max-age and sie caching values", () => {
+    const result = extractCachingValues(
+      new Response("", {
+        headers: {
+          age: "4",
+          "Cache-Control": "max-age=3",
+          "x-workers-swr-metadata-stale-if-error": "2",
+        },
+      })
+    );
+    expect(result).toEqual({
+      age: 4,
+      "max-age": 1,
+      sie: 2,
+    });
+  });
+
+  it("should return the age, (the real) max-age, swr and sie caching values", () => {
+    const result = extractCachingValues(
+      new Response("", {
+        headers: {
+          age: "4",
+          "Cache-Control": "max-age=3",
+          "x-workers-swr-metadata-stale-while-revalidate": "1",
+          "x-workers-swr-metadata-stale-if-error": "2",
+        },
+      })
+    );
+    expect(result).toEqual({
+      age: 4,
+      "max-age": 1,
+      swr: 1,
+      sie: 2,
     });
   });
 });

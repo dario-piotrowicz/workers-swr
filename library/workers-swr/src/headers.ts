@@ -47,7 +47,7 @@ export function generateHeadersForWorkersCache(
       .map(([directive, value]) => {
         const dirValue =
           directive === "max-age"
-            ? (maxAgeValue ?? 0) + Math.max(swrValue ?? 0, sieValue ?? 0)
+            ? getMaxAgeValueForCaching(maxAgeValue ?? 0, swrValue, sieValue)
             : value;
         return [directive, dirValue].filter(Boolean).join("=");
       })
@@ -102,7 +102,7 @@ export function generateUserHeadersFromWorkersCache(
       (_, maxAgeStr) => {
         const maxAgeValue = parseInt(maxAgeStr);
         return [
-          `max-age=${maxAgeValue - Math.max(swrValue ?? 0, sieValue ?? 0)}`,
+          `max-age=${getRealMaxAgeValue(maxAgeValue, swrValue, sieValue)}`,
           swrValue && `stale-while-revalidate=${swrValue}`,
           sieValue && `stale-if-error=${sieValue}`,
         ]
@@ -113,6 +113,94 @@ export function generateUserHeadersFromWorkersCache(
   }
 
   return result;
+}
+
+type ResponseCachingValues = {
+  age: number;
+  "max-age": number;
+  swr?: number;
+  sie?: number;
+};
+
+/**
+ * Extracts the caching values from a cached response so that they can be used to
+ * determine if the cached response should be returned (satisfies the caching criteria) or not
+ *
+ * Note: the returned max-age is the real one, not the incremented one used for caching
+ *
+ * @param cachedResponse the response stored in the workers cache
+ * @returns the caching values or null if something went wrong in reading the values
+ */
+export function extractCachingValues(
+  cachedResponse: Response
+): ResponseCachingValues | null {
+  const directives = collectDirectivesAndValues(
+    cachedResponse.headers.get("Cache-Control") ?? ""
+  );
+  const maxAgeValue = getNumberValue(directives, "max-age");
+
+  const ageValue = parseInt(cachedResponse.headers.get("age") ?? "");
+
+  if (!maxAgeValue || isNaN(ageValue)) return null;
+
+  const swrValue = parseInt(
+    cachedResponse.headers.get(
+      "x-workers-swr-metadata-stale-while-revalidate"
+    ) ?? ""
+  );
+  const sieValue = parseInt(
+    cachedResponse.headers.get("x-workers-swr-metadata-stale-if-error") ?? ""
+  );
+
+  const realMaxAgeValue = getRealMaxAgeValue(maxAgeValue, swrValue, sieValue);
+
+  if(realMaxAgeValue<=0) return null;
+
+  return {
+    age: ageValue,
+    "max-age": realMaxAgeValue,
+    ...(isNaN(swrValue) ? {} : { swr: swrValue }),
+    ...(isNaN(sieValue) ? {} : { sie: sieValue }),
+  };
+}
+
+function getRealMaxAgeValue(
+  cachedMaxAgeValue: number,
+  cachedSwrValue: number | undefined,
+  cachedSieValue: number | undefined
+): number {
+  return getMaxAgeValue(
+    "real",
+    cachedMaxAgeValue,
+    cachedSwrValue,
+    cachedSieValue
+  );
+}
+
+function getMaxAgeValueForCaching(
+  cachedMaxAgeValue: number,
+  cachedSwrValue: number | undefined,
+  cachedSieValue: number | undefined
+): number {
+  return getMaxAgeValue(
+    "for-caching",
+    cachedMaxAgeValue,
+    cachedSwrValue,
+    cachedSieValue
+  );
+}
+
+function getMaxAgeValue(
+  type: "real" | "for-caching",
+  maxAgeValue: number,
+  swrValue: number | undefined,
+  sieValue: number | undefined
+): number {
+  const swr = swrValue && !isNaN(swrValue) ? swrValue : 0;
+  const sie = sieValue && !isNaN(sieValue) ? sieValue : 0;
+  const max = Math.max(swr, sie);
+  const modifier = type === "real" ? -1 : 1;
+  return maxAgeValue + modifier * max;
 }
 
 type WorkersSwrMetadataHeaders = `x-workers-swr-metadata-${

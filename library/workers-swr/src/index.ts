@@ -1,4 +1,5 @@
 import { cacheResponse } from "./cache";
+import { extractCachingValues } from "./headers";
 import { generateResponseForUser } from "./response";
 
 export function withSWR<Env extends unknown>(
@@ -13,8 +14,11 @@ export function withSWR<Env extends unknown>(
 
     const cachedResponse = await swrCache.match(request);
 
-    if (cachedResponse) {
-      return generateResponseForUser(cachedResponse);
+    const cachingValues = cachedResponse
+      ? extractCachingValues(cachedResponse)
+      : null;
+    if (cachingValues) {
+      return generateResponseForUser(cachedResponse!);
     }
 
     const freshResponse = await fetchHandler(

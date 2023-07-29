@@ -19,7 +19,11 @@ export default {
       env: Env,
       ctx: ExecutionContext
     ): Promise<Response> => {
-      return new Response(`Hello worker! ${new Date().toISOString()}`);
+      return new Response(`Hello worker! ${new Date().toISOString()}`, {
+        headers: {
+          "Cache-Control": "max-age=10, stale-while-revalidate=5",
+        },
+      });
     }
   ),
 };
