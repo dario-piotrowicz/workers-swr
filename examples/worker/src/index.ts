@@ -10,15 +10,16 @@
 
 import { withSWR } from "workers-swr";
 
-export interface Env {
-}
+export interface Env {}
 
 export default {
-	fetch: withSWR(async (
-		request: Request,
-		env: Env,
-		ctx: ExecutionContext
-	): Promise<Response> => {
-		return new Response(`Hello worker! ${new Date().toISOString()}`);
-	}),
+  fetch: withSWR(
+    async (
+      request: Request,
+      env: Env,
+      ctx: ExecutionContext
+    ): Promise<Response> => {
+      return new Response(`Hello worker! ${new Date().toISOString()}`);
+    }
+  ),
 };

@@ -1,16 +1,29 @@
-export function withSWR<Env extends unknown>(fetchHandler: ExportedHandlerFetchHandler<Env, unknown>): ExportedHandlerFetchHandler {
-	return async (request: Request, env: unknown, ctx: ExecutionContext): Promise<Response> => {
-		const swrCache = await caches.open('swr:cache');
+import { cacheResponse } from "./cache";
 
-		const cachedResponse = await swrCache.match(request);
+export function withSWR<Env extends unknown>(
+  fetchHandler: ExportedHandlerFetchHandler<Env, unknown>
+): ExportedHandlerFetchHandler {
+  return async (
+    request: Request,
+    env: unknown,
+    ctx: ExecutionContext
+  ): Promise<Response> => {
+    const swrCache = await caches.open("swr:cache");
 
-		if(cachedResponse) {
-			return cachedResponse;
-		}
+    const cachedResponse = await swrCache.match(request);
 
-		const freshResponse = await fetchHandler(request as Parameters<ExportedHandlerFetchHandler>[0], env as Env, ctx);
-		ctx.waitUntil(swrCache.put(request, freshResponse.clone()));
+    if (cachedResponse) {
+      return cachedResponse;
+    }
 
-		return freshResponse;
-	};
+    const freshResponse = await fetchHandler(
+      request as Parameters<ExportedHandlerFetchHandler>[0],
+      env as Env,
+      ctx
+    );
+
+    cacheResponse(swrCache, freshResponse, request, ctx);
+
+    return freshResponse;
+  };
 }
