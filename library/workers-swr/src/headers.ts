@@ -65,6 +65,56 @@ export function generateHeadersForWorkersCache(
   };
 }
 
+/**
+ * Generates headers to apply to the response before sending it to the user, this basically
+ * reverts the modifications applied generateHeadersForWorkersCache
+ * (so that the response is sent to the user as it was originally)
+ *
+ * @param responseHeaders headers from the response (from the workers cache)
+ * @returns headers to apply/override to the response before sending it to the user
+ */
+export function generateUserHeadersFromWorkersCache(
+  responseHeaders: Headers
+): Record<string, string> {
+  const result: Record<string, string> = {};
+
+  let swrValue: number | undefined;
+  let sieValue: number | undefined;
+
+  responseHeaders.forEach((value, key) => {
+    if (key === "x-workers-swr-metadata-stale-while-revalidate") {
+      swrValue = parseInt(value);
+      return;
+    }
+
+    if (key === "x-workers-swr-metadata-stale-if-error") {
+      sieValue = parseInt(value);
+      return;
+    }
+
+    result[key] = value;
+  });
+
+  const cacheControl = result["cache-control"];
+  if (cacheControl) {
+    result["cache-control"] = cacheControl?.replace(
+      /max-age=(\d+)/,
+      (_, maxAgeStr) => {
+        const maxAgeValue = parseInt(maxAgeStr);
+        return [
+          `max-age=${maxAgeValue - Math.max(swrValue ?? 0, sieValue ?? 0)}`,
+          swrValue && `stale-while-revalidate=${swrValue}`,
+          sieValue && `stale-if-error=${sieValue}`,
+        ]
+          .filter(Boolean)
+          .join(", ");
+      }
+    );
+  }
+
+  return result;
+}
+
 type WorkersSwrMetadataHeaders = `x-workers-swr-metadata-${
   | "stale-while-revalidate"
   | "stale-if-error"}`;

@@ -1,4 +1,4 @@
-import { generateHeadersForWorkersCache } from "./cacheControl";
+import { generateHeadersForWorkersCache } from "./headers";
 
 /**
  * caches a response if it has a Cache-Control header
