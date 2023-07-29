@@ -68,4 +68,44 @@ describe("processCacheControlForWorkersCache", () => {
       "x-workers-swr-metadata-stale-while-revalidate": "2",
     });
   });
+
+  it("should handle a Cache-Control with a zero stale-if-error directive", () => {
+    const result = processCacheControlForWorkersCache(
+      "max-age=5, stale-if-error=0"
+    );
+    expect(result).toEqual({
+      "Cache-Control": "max-age=5",
+      "x-workers-swr-metadata-stale-if-error": "0",
+    });
+  });
+
+  it("should handle a Cache-Control with a non zero stale-if-error directive", () => {
+    const result = processCacheControlForWorkersCache(
+      "max-age=5, stale-if-error=5"
+    );
+    expect(result).toEqual({
+      "Cache-Control": "max-age=10",
+      "x-workers-swr-metadata-stale-if-error": "5",
+    });
+  });
+
+  it("should handle a Cache-Control with a non zero stale-if-error directive present as the first directive", () => {
+    const result = processCacheControlForWorkersCache(
+      "stale-if-error=2, immutable, max-age=3"
+    );
+    expect(result).toEqual({
+      "Cache-Control": "immutable, max-age=5",
+      "x-workers-swr-metadata-stale-if-error": "2",
+    });
+  });
+
+  it("should handle a Cache-Control with a non zero stale-if-error directive followed by a different directive", () => {
+    const result = processCacheControlForWorkersCache(
+      "max-age=1, stale-if-error=2, public"
+    );
+    expect(result).toEqual({
+      "Cache-Control": "max-age=3, public",
+      "x-workers-swr-metadata-stale-if-error": "2",
+    });
+  });
 });

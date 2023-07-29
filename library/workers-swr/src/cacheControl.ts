@@ -32,21 +32,33 @@ export function processCacheControlForWorkersCache(
 
   const directives = collectDirectivesAndValues(requestCacheControl);
 
-  const maxAgeValue = getNumberValue(directives, 'max-age');
-  const swrValue = getNumberValue(directives, 'stale-while-revalidate');
+  const maxAgeValue = getNumberValue(directives, "max-age");
+  const swrValue = getNumberValue(directives, "stale-while-revalidate");
+  const sieValue = getNumberValue(directives, "stale-if-error");
 
   return {
     "Cache-Control": Object.entries(directives)
-      .filter(([directive]) => directive !== 'stale-while-revalidate')
+      .filter(
+        ([directive]) =>
+          !["stale-while-revalidate", "stale-if-error"].includes(directive)
+      )
       .map(([directive, value]) => {
-        const dirValue = directive === 'max-age' ? (maxAgeValue ?? 0) + (swrValue ?? 0) : value
-        return ([directive, dirValue].filter(Boolean).join('='))
+        const dirValue =
+          directive === "max-age"
+            ? (maxAgeValue ?? 0) + (swrValue ?? 0) + (sieValue ?? 0)
+            : value;
+        return [directive, dirValue].filter(Boolean).join("=");
       })
-      .join(', '),
+      .join(", "),
     ...(swrValue === undefined
       ? {}
       : {
           "x-workers-swr-metadata-stale-while-revalidate": `${swrValue}`,
+        }),
+    ...(sieValue === undefined
+      ? {}
+      : {
+          "x-workers-swr-metadata-stale-if-error": `${sieValue}`,
         }),
   };
 }
@@ -61,19 +73,25 @@ type HeadersForWorkersCache = {
   [Key in WorkersSwrMetadataHeaders]?: string;
 };
 
-function collectDirectivesAndValues(cacheControl: string): Record<string, string|undefined> {
+function collectDirectivesAndValues(
+  cacheControl: string
+): Record<string, string | undefined> {
   return cacheControl
     .split(",")
-    .map((directive) => directive.trim()).reduce((directives, directive) => {
-    const parts = directive.split("=").map((part) => part.trim());
-    return {
-      ...directives,
-      [parts[0]!.toLowerCase()]: parts[1]
-    }
-  }, {});
+    .map((directive) => directive.trim())
+    .reduce((directives, directive) => {
+      const parts = directive.split("=").map((part) => part.trim());
+      return {
+        ...directives,
+        [parts[0]!.toLowerCase()]: parts[1],
+      };
+    }, {});
 }
 
-function getNumberValue(directivesAndValues: Record<string, string|undefined>, directiveName: string): number|undefined {
-  const number = parseInt(directivesAndValues[directiveName] ?? '');
+function getNumberValue(
+  directivesAndValues: Record<string, string | undefined>,
+  directiveName: string
+): number | undefined {
+  const number = parseInt(directivesAndValues[directiveName] ?? "");
   return isNaN(number) ? undefined : number;
 }
