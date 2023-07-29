@@ -26,16 +26,30 @@ export function withSWR<Env extends unknown>(
       ? extractCachingValues(cachedResponse)
       : null;
     if (cachingValues) {
-      if(cachingValues.age < cachingValues["max-age"]) {
+      if(cachingValues.age <= cachingValues["max-age"]) {
         return generateResponseForUser(cachedResponse!);
       }
-      if(cachingValues.age < cachingValues["max-age"] + (cachingValues.swr ?? 0)) {
+      if(cachingValues.age <= cachingValues["max-age"] + (cachingValues.swr ?? 0)) {
         revalidateResponse(swrCache, runOriginalFetchHandler, request, ctx);
         return generateResponseForUser(cachedResponse!);
       }
     }
 
-    const freshResponse = await runOriginalFetchHandler();
+    let freshResponse: Response;
+    try {
+      freshResponse = await runOriginalFetchHandler();
+    } catch (e) {
+      if(cachingValues && cachingValues.age > cachingValues["max-age"] && cachingValues.age <= cachingValues["max-age"] + (cachingValues.sie ?? 0)) {
+        return cachedResponse!;
+      }
+      throw e;
+    }
+    if(freshResponse.status >= 500) {
+      if(cachingValues && cachingValues.age > cachingValues["max-age"] && cachingValues.age <= cachingValues["max-age"] + (cachingValues.sie ?? 0)) {
+        return cachedResponse!;
+      }
+    }
+
     cacheResponse(swrCache, freshResponse, request, ctx);
     return freshResponse;
   };
