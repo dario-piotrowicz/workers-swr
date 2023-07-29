@@ -30,15 +30,50 @@ export function processCacheControlForWorkersCache(
     return null;
   }
 
+  const directives = collectDirectivesAndValues(requestCacheControl);
+
+  const maxAgeValue = getNumberValue(directives, 'max-age');
+  const swrValue = getNumberValue(directives, 'stale-while-revalidate');
+
   return {
-    'Cache-Control': requestCacheControl,
+    "Cache-Control": Object.entries(directives)
+      .filter(([directive]) => directive !== 'stale-while-revalidate')
+      .map(([directive, value]) => {
+        const dirValue = directive === 'max-age' ? (maxAgeValue ?? 0) + (swrValue ?? 0) : value
+        return ([directive, dirValue].filter(Boolean).join('='))
+      })
+      .join(', '),
+    ...(swrValue === undefined
+      ? {}
+      : {
+          "x-workers-swr-metadata-stale-while-revalidate": `${swrValue}`,
+        }),
   };
 }
 
-type WorkersSwrMetadataHeaders = `x-workers-swr-metadata-${'stale-while-revalidate'|'stale-if-error'}`;
+type WorkersSwrMetadataHeaders = `x-workers-swr-metadata-${
+  | "stale-while-revalidate"
+  | "stale-if-error"}`;
 
 type HeadersForWorkersCache = {
-  'Cache-Control': string;
+  "Cache-Control": string;
 } & {
   [Key in WorkersSwrMetadataHeaders]?: string;
 };
+
+function collectDirectivesAndValues(cacheControl: string): Record<string, string|undefined> {
+  return cacheControl
+    .split(",")
+    .map((directive) => directive.trim()).reduce((directives, directive) => {
+    const parts = directive.split("=").map((part) => part.trim());
+    return {
+      ...directives,
+      [parts[0]!.toLowerCase()]: parts[1]
+    }
+  }, {});
+}
+
+function getNumberValue(directivesAndValues: Record<string, string|undefined>, directiveName: string): number|undefined {
+  const number = parseInt(directivesAndValues[directiveName] ?? '');
+  return isNaN(number) ? undefined : number;
+}
