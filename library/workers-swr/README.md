@@ -3,22 +3,22 @@
 Minimum requirements to implement:
 
 - [] [Request Cache-Control Directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#request_directives) handling
-  - [] ~~`no-cache`~~
-  - [] ~~`no-store`~~
-  - [] ~~`max-age`~~
+  - ~~[] `no-cache`~~
+  - ~~[] `no-store`~~
+  - ~~[] `max-age`~~
   - [] `max-stale`
   - [] `min-fresh`
   - [] `only-if-cached`
-- [] [Response Cache-Control Directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#response_directives) handling
-  - [] ~~`max-age`~~
-  - [] ~~`no-cache`~~
-  - [] ~~`must-revalidate`~~
-  - [] ~~`no-store`~~
-  - [] ~~`private`~~
+- [x] [Response Cache-Control Directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#response_directives) handling
+  - ~~[] `max-age`~~
+  - ~~[] `no-cache`~~
+  - ~~[] `must-revalidate`~~
+  - ~~[] `no-store`~~
+  - ~~[] `private`~~
   - ~~[] `public`~~
-  - [] ~~`immutable`~~
-  - [] `stale-while-revalidate`
-  - [] `stale-if-error`
+  - ~~[] `immutable`~~
+  - [x] `stale-while-revalidate`
+  - [x] `stale-if-error`
 
 Potentially a config parameter can be passed to `withSWR` to enable:
 
