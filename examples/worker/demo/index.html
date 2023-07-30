@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script defer src="./vendor/cdn.jsdelivr.net_npm_alpinejs@3.12.3_dist_cdn.min.js"></script>
+  </head>
+  <body x-data>
+    <script src="./index.js"></script>
+
+    <form class="user-inputs" x-data="{ route: getRandomRoute(), maxAge: 5, swr: 1, sie: 0 }" @submit.prevent="() => {}">
+      <div>
+        <span>route: </span><span x-text="'/' + route"></span>
+        <button x-on:click="route = getRandomRoute()">change route</button>
+      </div>
+
+      <div>
+        max-age: <input type="number" x-model="maxAge" min="0" max="120">
+      </div>
+
+      <div>
+        stale-while-revalidate: <input type="number" x-model="swr" min="0" max="120">
+      </div>
+
+      <div>
+        stale-if-error: <input type="number" x-model="sie" min="0" max="120">
+      </div>
+
+      <div>
+        <button x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie })">Fetch from worker</button>
+        <button x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie, error: true })">Force error from worker</button>
+      </div>
+    </form>
+
+    <div class="output" x-show="$store.responsesFromWorker.lastResponse">
+      <span>last response: </span>
+      <div class="response-card" x-html="$store.responsesFromWorker.lastResponse"></div>
+    </div>
+
+  </body>
+</html>
