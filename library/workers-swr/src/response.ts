@@ -1,5 +1,7 @@
-import { ResponseCachingValues } from "./cache";
-import { generateUserHeadersFromWorkersCache } from "./headers";
+import {
+  extractCachingValues,
+  generateUserHeadersFromWorkersCache,
+} from "./headers";
 
 /**
  * Generates a response to sent to the user from a cached response
@@ -19,45 +21,51 @@ export function generateResponseForUser(cachedResponse: Response): Response {
 }
 
 /**
- * Checks if a response is fresh (according to its caching values)
+ * Checks if a response is cached.
  *
- * @param cachingValues caching values from a response
- * @returns true if the response is fresh, false otherwise
+ * If it is, it then checks if it is:
+ *  - fresh
+ *  - stale and should be revalidated (swr)
+ *  - or stale and should override/cover a server error (sie)
+ *
+ * @param cachedResponse response from the workers cache
+ * @returns object with the results of the checks
  */
-export function isResponseFresh({
-  age,
-  maxAge,
-}: ResponseCachingValues): boolean {
-  return age <= maxAge;
+export function getResponseCachingChecks(
+  cachedResponse: Response | undefined
+): ResponseCachingChecks {
+  const cachingValues = cachedResponse
+    ? extractCachingValues(cachedResponse)
+    : null;
+
+  if (!cachingValues) {
+    return {
+      isCached: false,
+      isFresh: false,
+      shouldBeRevalidated: false,
+      shouldOverrideError: false,
+    };
+  }
+
+  const { age, maxAge, swr, sie } = cachingValues;
+  return {
+    isCached: true,
+    isFresh: age <= maxAge,
+    shouldBeRevalidated: age > maxAge && age <= maxAge + (swr ?? 0),
+    shouldOverrideError: age > maxAge && age <= maxAge + (sie ?? 0),
+  };
 }
 
-/**
- * Checks if a response is stale and should be revalidated (according to its caching values)
- *
- * Note: with "revalidated" here we mean both that the response should be revalidated and
- *       that the user should be served the stale cached response
- *
- * @param cachingValues caching values from a response
- * @returns true if the response is stale and should be revalidated, false otherwise
- */
-export function shouldResponseBeRevalidated({
-  age,
-  maxAge,
-  swr,
-}: ResponseCachingValues): boolean {
-  return age > maxAge && age <= maxAge + (swr ?? 0);
-}
-
-/**
- * Checks if a response is stale and should be returned to override/cover a server error (according to its caching values)
- *
- * @param cachingValues caching values from a response
- * @returns true if the response is stale and should override/cover a server error, false otherwise
- */
-export function shouldResponseOverrideError({
-  age,
-  maxAge,
-  sie,
-}: ResponseCachingValues): boolean {
-  return age > maxAge && age <= maxAge + (sie ?? 0);
-}
+type ResponseCachingChecks =
+  | {
+      isCached: false;
+      isFresh: false;
+      shouldBeRevalidated: false;
+      shouldOverrideError: false;
+    }
+  | {
+      isCached: true;
+      isFresh: boolean;
+      shouldBeRevalidated: boolean;
+      shouldOverrideError: boolean;
+    };

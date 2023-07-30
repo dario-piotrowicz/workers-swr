@@ -1,11 +1,5 @@
 import { cacheResponse, revalidateResponse } from "./cache";
-import { extractCachingValues } from "./headers";
-import {
-  generateResponseForUser,
-  isResponseFresh,
-  shouldResponseBeRevalidated,
-  shouldResponseOverrideError,
-} from "./response";
+import { generateResponseForUser, getResponseCachingChecks } from "./response";
 
 export function withSWR<Env extends unknown>(
   fetchHandler: ExportedHandlerFetchHandler<Env, unknown>
@@ -27,14 +21,14 @@ export function withSWR<Env extends unknown>(
 
     const cachedResponse = await swrCache.match(request);
 
-    const cachingValues = cachedResponse
-      ? extractCachingValues(cachedResponse)
-      : null;
-    if (cachingValues) {
-      if (isResponseFresh(cachingValues)) {
+    const { isCached, isFresh, shouldBeRevalidated, shouldOverrideError } =
+      getResponseCachingChecks(cachedResponse);
+
+    if (isCached) {
+      if (isFresh) {
         return generateResponseForUser(cachedResponse!);
       }
-      if (shouldResponseBeRevalidated(cachingValues)) {
+      if (shouldBeRevalidated) {
         revalidateResponse(swrCache, runOriginalFetchHandler, request, ctx);
         return generateResponseForUser(cachedResponse!);
       }
@@ -44,16 +38,12 @@ export function withSWR<Env extends unknown>(
     try {
       freshResponse = await runOriginalFetchHandler();
     } catch (e) {
-      if (cachingValues && shouldResponseOverrideError(cachingValues)) {
+      if (isCached && shouldOverrideError) {
         return cachedResponse!;
       }
       throw e;
     }
-    if (
-      freshResponse.status >= 500 &&
-      cachingValues &&
-      shouldResponseOverrideError(cachingValues)
-    ) {
+    if (freshResponse.status >= 500 && isCached && shouldOverrideError) {
       return cachedResponse!;
     }
 

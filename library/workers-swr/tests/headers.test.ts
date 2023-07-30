@@ -302,7 +302,7 @@ describe("extractCachingValues", () => {
     );
     expect(result).toEqual({
       age: 4,
-      "max-age": 5,
+      maxAge: 5,
     });
   });
 
@@ -318,7 +318,7 @@ describe("extractCachingValues", () => {
     );
     expect(result).toEqual({
       age: 4,
-      "max-age": 1,
+      maxAge: 1,
       swr: 2,
     });
   });
@@ -335,7 +335,7 @@ describe("extractCachingValues", () => {
     );
     expect(result).toEqual({
       age: 4,
-      "max-age": 1,
+      maxAge: 1,
       sie: 2,
     });
   });
@@ -353,7 +353,7 @@ describe("extractCachingValues", () => {
     );
     expect(result).toEqual({
       age: 4,
-      "max-age": 1,
+      maxAge: 1,
       swr: 1,
       sie: 2,
     });
