@@ -51,8 +51,8 @@ export function getResponseCachingChecks(
   return {
     isCached: true,
     isFresh: age < maxAge,
-    shouldBeRevalidated: age > maxAge && age < maxAge + (swr ?? 0),
-    shouldOverrideError: age > maxAge && age < maxAge + (sie ?? 0),
+    shouldBeRevalidated: age >= maxAge && age < maxAge + (swr ?? 0),
+    shouldOverrideError: age >= maxAge && age < maxAge + (sie ?? 0),
   };
 }
 
