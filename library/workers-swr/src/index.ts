@@ -17,6 +17,12 @@ export function withSWR<Env extends unknown>(
       );
     };
 
+    if(request.method !== 'GET') {
+      // only GET requests can be cached so we just stop here
+      // if the request is not a GET one
+      return runOriginalFetchHandler();
+    }
+
     const swrCache = await caches.open("swr:cache");
 
     const cachedResponse = await swrCache.match(request);
