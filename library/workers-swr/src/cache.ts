@@ -17,6 +17,10 @@ export function cacheResponse(
   request: Request<unknown, CfProperties<unknown>>,
   ctx: ExecutionContext
 ): void {
+  if (response.status > 400) {
+    // error responses should not get cached
+    return;
+  }
   const responseToBeCached = response.clone();
   const headersForWorkersCache = generateHeadersForWorkersCache(
     response.headers.get("Cache-Control")

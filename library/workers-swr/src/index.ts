@@ -17,7 +17,7 @@ export function withSWR<Env extends unknown>(
       );
     };
 
-    if(request.method !== 'GET') {
+    if (request.method !== "GET") {
       // only GET requests can be cached so we just stop here
       // if the request is not a GET one
       return runOriginalFetchHandler();
