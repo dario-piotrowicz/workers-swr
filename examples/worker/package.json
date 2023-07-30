@@ -7,7 +7,7 @@
     "start": "wrangler dev",
     "d": "wrangler deploy",
     "t": "wrangler tail",
-    "dt": "npm run deploy ; npm run tail"
+    "dt": "npm run d ; npm run t"
   },
   "author": "",
   "license": "ISC",
