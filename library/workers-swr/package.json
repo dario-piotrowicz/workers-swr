@@ -15,39 +15,31 @@
 		"test": "npx vitest --config vitest.config.ts"
 	},
 	"files": [
-		"bin",
-		"dist",
-		"templates"
+		"dist"
 	],
 	"keywords": [
 		"cloudflare",
-		"cloudflare pages",
-		"edge",
-		"nextjs"
+		"cloudflare workers",
+		"swr",
+		"stale-while-revalidate"
 	],
 	"license": "MIT",
-	"homepage": "https://github.com/cloudflare/next-on-pages#readme",
+	"homepage": "https://github.com/dario-piotrowicz/workers-swr#readme",
 	"bugs": {
-		"url": "https://github.com/cloudflare/next-on-pages/issues"
+		"url": "https://github.com/dario-piotrowicz/workers-swr/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cloudflare/next-on-pages.git"
+		"url": "https://github.com/dario-piotrowicz/workers-swr"
 	},
 	"dependencies": {
 		"esbuild": "^0.15.3"
 	},
-	"peerDependencies": {
-		"vercel": "^30.0.0",
-		"wrangler": "^3.0.0"
-	},
 	"devDependencies": {
 		"tsconfig": "*",
-		"@cloudflare/workers-types": "^4.20230404.0",
 		"@tsconfig/strictest": "^2.0.0",
 		"eslint": "^8.35.0",
 		"typescript": "^5.0.4",
-		"vitest": "^0.32.2",
-		"vitest-environment-miniflare": "^2.13.0"
+		"vitest": "^0.32.2"
 	}
 }
