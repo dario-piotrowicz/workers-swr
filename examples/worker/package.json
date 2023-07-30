@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "dt": "npm run deploy ; npm run tail",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
