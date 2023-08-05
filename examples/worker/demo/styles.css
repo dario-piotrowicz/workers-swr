@@ -8,6 +8,10 @@ body {
   min-height: 100dvh;
 }
 
+h1, h2 {
+  text-align: center;
+}
+
 a {
   color: blue;
   text-decoration: none;
@@ -21,6 +25,11 @@ a:where(:hover, :focus) {
 
 button {
   cursor: pointer;
+  font-size: inherit;
+}
+
+input {
+  font-size: inherit;
 }
 
 h1 {
@@ -57,6 +66,10 @@ h1 {
       display: flex;
       align-items: center;
       gap: 0.5rem;
+
+      & > svg {
+        height: 1rem;
+      }
     }
   }
 
@@ -77,10 +90,16 @@ h1 {
 }
 
 .output {
-  margin-block-start: 3rem;
+  margin-block-start: 2rem;
 
   & h2 {
     margin-block: 1rem 0.5rem;
+  }
+
+  & h2 + span {
+    display: block;
+    width: 100%;
+    text-align: center;
   }
 
   & h3 {
@@ -94,5 +113,12 @@ h1 {
     border-radius: 15px;
     color: #3f3f3f;
     font-style: italic;
+  }
+}
+
+
+@media (width < 30rem) {
+  body {
+    font-size: 85%;
   }
 }
