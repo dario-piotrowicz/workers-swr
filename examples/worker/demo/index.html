@@ -1,43 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="./styles.css">
-    <script defer src="./vendor/cdn.jsdelivr.net_npm_alpinejs@3.12.3_dist_cdn.min.js"></script>
+    <link rel="stylesheet" href="./styles.css" />
+    <script
+      defer
+      src="./vendor/cdn.jsdelivr.net_npm_alpinejs@3.12.3_dist_cdn.min.js"
+    ></script>
   </head>
   <body x-data>
     <script src="./index.js"></script>
 
-    <form class="user-inputs" x-data="{ route: getRandomRoute(), maxAge: 5, swr: 1, sie: 0 }" @submit.prevent="() => {}">
-      <div>
+    <form
+      class="user-inputs"
+      x-data="{ route: getRandomRoute(), maxAge: 5, swr: 1, sie: 0 }"
+      @submit.prevent="() => {}"
+    >
+      <div class="route-section">
         <span>route: </span><span x-text="'/' + route"></span>
-        <button x-on:click="route = getRandomRoute()">change route</button>
+        <button x-on:click="route = getRandomRoute()" class="change-route-btn">
+          change route
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20"
+            viewBox="0 -960 960 960"
+            width="20"
+          >
+            <path
+              d="m 430,-82 c -48,-6 -92.83333,-20.33333 -134.5,-43 -41.66667,-22.66667 -77.66667,-51.5 -108,-86.5 -30.33333,-35 -54.16667,-75.33333 -71.5,-121 -17.333333,-45.66667 -26,-94.83333 -26,-147.5 0,-58.66667 13.83333,-114.66667 41.5,-168 27.66667,-53.33333 64.83333,-100.66667 111.5,-142 H 121 v -60 h 229 v 229 h -60 v -129 c -42.66667,34 -76.66667,74.5 -102,121.5 -25.33333,47 -38,96.5 -38,148.5 0,88 26.66667,163.16667 80,225.5 53.33333,62.33333 120,99.5 200,111.5 z m 180,-28 v -229 h 60 v 129 c 42.66667,-34.66667 76.66667,-75.33333 102,-122 25.33333,-46.66667 38,-96 38,-148 0,-88 -26.66667,-163.16667 -80,-225.5 C 676.66667,-767.83333 610,-805 530,-817 v -61 c 97.33333,12 178.33333,55 243,129 64.66667,74 97,163.66667 97,269 0,58.66667 -13.83333,114.66667 -41.5,168 -27.66667,53.33333 -64.83333,100.66667 -111.5,142 h 122 v 60 z"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="headers-section">
+        <label for="max-age-input">max-age:</label>
+        <input
+          type="number"
+          id="max-age-input"
+          x-model="maxAge"
+          min="0"
+          max="120"
+        />
+
+        <label for="swr-input"> stale-while-revalidate: </label>
+        <input type="number" id="swr-input" x-model="swr" min="0" max="120" />
+
+        <label for="sie-input"> stale-if-error: </label>
+        <input type="number" id="sie-input" x-model="sie" min="0" max="120" />
       </div>
 
       <div>
-        max-age: <input type="number" x-model="maxAge" min="0" max="120">
-      </div>
-
-      <div>
-        stale-while-revalidate: <input type="number" x-model="swr" min="0" max="120">
-      </div>
-
-      <div>
-        stale-if-error: <input type="number" x-model="sie" min="0" max="120">
-      </div>
-
-      <div>
-        <button x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie })">Fetch from worker</button>
-        <button x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie, error: true })">Force error from worker</button>
+        <button
+          x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie })"
+        >
+          Fetch from worker
+        </button>
+        <button
+          x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie, error: true })"
+        >
+          Force error from worker
+        </button>
       </div>
     </form>
 
     <div class="output" x-show="$store.responsesFromWorker.lastResponse">
       <span>last response: </span>
-      <div class="response-card" x-html="$store.responsesFromWorker.lastResponse"></div>
+      <div
+        class="response-card"
+        x-html="$store.responsesFromWorker.lastResponse"
+      ></div>
     </div>
-
   </body>
 </html>
