@@ -13,6 +13,13 @@
   <body x-data>
     <script src="./index.js"></script>
 
+    <h1>
+      <a href="https://www.npmjs.com/package/workers-swr" target="_blank"
+        >workers-swr</a
+      >
+      demo
+    </h1>
+
     <form
       class="user-inputs"
       x-data="{ route: getRandomRoute(), maxAge: 5, swr: 1, sie: 0 }"
@@ -52,7 +59,7 @@
         <input type="number" id="sie-input" x-model="sie" min="0" max="120" />
       </div>
 
-      <div>
+      <div class="fetch-btns">
         <button
           x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie })"
         >
@@ -67,8 +74,13 @@
     </form>
 
     <div class="output" x-show="$store.responsesFromWorker.lastResponse">
-      <H2> Response</H2>
-      <span>Received at <span x-text="$store.responsesFromWorker.lastResponse?.receivedAt"></span></span>
+      <h2>Response</h2>
+      <span
+        >Received at
+        <span
+          x-text="$store.responsesFromWorker.lastResponse?.receivedAt"
+        ></span
+      ></span>
       <h3>Content</h3>
       <div
         class="response-card"

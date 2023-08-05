@@ -8,8 +8,23 @@ body {
   min-height: 100dvh;
 }
 
+a {
+  color: blue;
+  text-decoration: none;
+  outline-offset: 0.5rem;
+  outline-color: currentColor;
+}
+
+a:where(:hover, :focus) {
+  text-decoration: underline;
+}
+
 button {
   cursor: pointer;
+}
+
+h1 {
+  margin-block-start: 0;
 }
 
 .user-inputs {
@@ -17,7 +32,7 @@ button {
   flex-direction: column;
   gap: 0.5rem;
   width: 100%;
-  max-width: 80%;
+  max-width: min(80%, 35rem);
   align-items: center;
   padding: 1rem;
   border: 1px solid black;
@@ -46,23 +61,38 @@ button {
   }
 
   & .headers-section {
-    margin-block: 1rem;
+    margin-block-end: 1rem;
     display: grid;
     grid-template-columns: 1fr max-content;
+    align-items: center;
     row-gap: 1rem;
     column-gap: 0.7rem;
+  }
+
+  & .fetch-btns {
+    display: flex;
+    gap: 1rem;
+    margin-block-end: 0.4rem;
   }
 }
 
 .output {
-  margin-block-start: 5rem;
-}
+  margin-block-start: 3rem;
 
-.response-card {
-  background-color: #e9e9e9;
-  padding: 1rem;
-  margin-block: 1rem;
-  border: 2px solid currentColor;
-  border-radius: 15px;
-  color: #757575;
+  & h2 {
+    margin-block: 1rem 0.5rem;
+  }
+
+  & h3 {
+    margin-block: 1rem 0.25rem;
+  }
+
+  & .response-card {
+    background-color: #e9e9e9;
+    padding: 1rem;
+    border: 1px solid currentColor;
+    border-radius: 15px;
+    color: #3f3f3f;
+    font-style: italic;
+  }
 }
