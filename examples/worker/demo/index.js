@@ -16,8 +16,10 @@ document.addEventListener('alpine:init', () => {
           },
         }
       );
-      const text = await resp.text();
-      this.responses.push(text);
+      this.responses.push({
+        receivedAt: new Date().toISOString(),
+        responseText: await resp.text()
+      });
     }
   });
 }, { once: true });

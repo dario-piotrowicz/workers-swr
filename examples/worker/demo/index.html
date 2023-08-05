@@ -67,10 +67,12 @@
     </form>
 
     <div class="output" x-show="$store.responsesFromWorker.lastResponse">
-      <span>last response: </span>
+      <H2> Response</H2>
+      <span>Received at <span x-text="$store.responsesFromWorker.lastResponse?.receivedAt"></span></span>
+      <h3>Content</h3>
       <div
         class="response-card"
-        x-html="$store.responsesFromWorker.lastResponse"
+        x-html="$store.responsesFromWorker.lastResponse?.responseText"
       ></div>
     </div>
   </body>
