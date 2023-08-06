@@ -53,7 +53,9 @@ export function withSWR<Env extends unknown>(
       return cachedResponse!;
     }
 
-    cacheResponse(swrCache, freshResponse, request, ctx);
+    if(freshResponse.status < 400) {
+      cacheResponse(swrCache, freshResponse, request, ctx);
+    }
     return freshResponse;
   };
 }
