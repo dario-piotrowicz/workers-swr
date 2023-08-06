@@ -46,17 +46,18 @@ h1 {
   padding: 1rem;
   border: 1px solid black;
   border-radius: 5px;
+  container-type: inline-size;
 
   & .route-section {
     display: flex;
     width: 100%;
     align-items: center;
 
-    & > span:first-child {
+    > span:first-child {
       margin-inline-end: 0.5rem;
     }
 
-    & > span:nth-child(2) {
+    > span:nth-child(2) {
       color: rgb(65, 65, 65);
       font-style: italic;
     }
@@ -73,19 +74,70 @@ h1 {
     }
   }
 
-  & .headers-section {
+  @container (width < 20rem){
+    .route-section button {
+        > span {
+          display: none;
+        }
+
+        > svg {
+          height: .9rem;
+        }
+    }
+  }
+
+  .headers-section {
     margin-block-end: 1rem;
     display: grid;
     grid-template-columns: 1fr max-content;
     align-items: center;
     row-gap: 1rem;
     column-gap: 0.7rem;
+
+    .short-version {
+      display: none;
+    }
   }
 
-  & .fetch-btns {
+  @container (width < 35rem){
+    .headers-section {
+      margin-block-start: 1rem;
+    }
+  }
+
+  @container (width < 15rem){
+    .headers-section {
+      .long-version {
+        display: none;
+      }
+
+      .short-version {
+        display: inline;
+      }
+    }
+  }
+
+  @container (width < 10rem){
+    .headers-section {
+      grid-template-columns: 1fr;
+      row-gap: .25rem;
+
+      & input {
+        margin-block-end: 1rem;
+      }
+    }
+  }
+
+  .fetch-btns {
     display: flex;
     gap: 1rem;
     margin-block-end: 0.4rem;
+  }
+
+  @container (width < 27rem){
+    .fetch-btns {
+      flex-direction: column;
+    }
   }
 }
 
@@ -106,7 +158,7 @@ h1 {
     margin-block: 1rem 0.25rem;
   }
 
-  & .response-card {
+  .response-card {
     background-color: #e9e9e9;
     padding: 1rem;
     border: 1px solid currentColor;

@@ -28,7 +28,9 @@
       <div class="route-section">
         <span>route: </span><span x-text="'/' + route"></span>
         <button x-on:click="route = getRandomRoute()" class="change-route-btn">
-          change route
+          <span>
+            change route
+          </span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="20"
@@ -52,10 +54,16 @@
           max="120"
         />
 
-        <label for="swr-input"> stale-while-revalidate: </label>
+        <label for="swr-input">
+          <span class="long-version">stale-while-revalidate</span>
+          <span class="short-version">swr</span>:
+        </label>
         <input type="number" id="swr-input" x-model="swr" min="0" max="120" />
 
-        <label for="sie-input"> stale-if-error: </label>
+        <label for="sie-input">
+          <span class="long-version">stale-if-error</span>
+          <span class="short-version">sie</span>:
+        </label>
         <input type="number" id="sie-input" x-model="sie" min="0" max="120" />
       </div>
 
