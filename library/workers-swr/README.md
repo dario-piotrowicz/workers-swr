@@ -6,11 +6,13 @@ Utility to add `stale-while-revalidate` and `stale-if-error` (see [rfc5861](http
 ## Usage
 
 The library is very minimalistic and requires almost no code changes, just install the library via:
+
 ```sh
 npm i workers-swr
 ```
 
 Then import and wrap your fetch handler with the provided `withSWR` function:
+
 ```ts
 import { withSWR } from "workers-swr";
 
@@ -18,7 +20,7 @@ export default {
   fetch: withSWR(
     // your standard fetch handler goes here
     (request, env, ctx) => {
-      return new Response('Hello World!');
+      return new Response("Hello World!");
     }
   ),
 };
@@ -36,14 +38,12 @@ The library will check incoming requests and outgoing responses and implement th
 
 Demo on how this library works ([source code](https://github.com/dario-piotrowicz/workers-swr/tree/main/examples/worker)): https://workers-swr-demo.dariopiot.net/
 
-
 ## To implement
 
 ### Essential items yet to be implemented
 
 - [] [Request Cache-Control Directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#request_directives) handling
-  > **Note**
-  > `no-cache`, `no-store` and `max-age` are already handled by the workers cache api
+  > **Note** > `no-cache`, `no-store` and `max-age` are already handled by the workers cache api
   - [] `max-stale`
   - [] `min-fresh`
   - [] `only-if-cached`
@@ -52,4 +52,4 @@ Demo on how this library works ([source code](https://github.com/dario-piotrowic
 
 - [] adding a config parameter can be passed to `withSWR` to enable the `must-understand` directive
 
-- [] adding the possibility to use a different caching storage (e.g. using KVs instead of the cache api, allowing caching also on `workers.dev` subdomains) (__important note: this would also need to make sure we handle all the [cache control directives that now the workers api handles for us](https://developers.cloudflare.com/cache/concepts/cache-control#cache-control-directives)__)
+- [] adding the possibility to use a different caching storage (e.g. using KVs instead of the cache api, allowing caching also on `workers.dev` subdomains) (**important note: this would also need to make sure we handle all the [cache control directives that now the workers api handles for us](https://developers.cloudflare.com/cache/concepts/cache-control#cache-control-directives)**)
