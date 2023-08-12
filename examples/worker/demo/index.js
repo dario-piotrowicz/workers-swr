@@ -7,7 +7,7 @@ document.addEventListener('alpine:init', () => {
       return this.responses[this.responses.length - 1];
     },
  
-    async fetchNew(route, { maxAge, swr, sie, error, cacheErrors }) {
+    async fetchNew(route, { maxAge, swr, sie, error }) {
       const resp = await fetch(
         `https://workers-swr-example-worker.dariopiot.net/${route}`,
         {
@@ -18,7 +18,6 @@ document.addEventListener('alpine:init', () => {
                 swr,
                 sie,
                 error,
-                cacheErrors,
               }),
             // let's add an invalid if-modified-since so that we always receive proper
             // responses and not 304 ones (https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304)
