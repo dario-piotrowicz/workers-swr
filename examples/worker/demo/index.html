@@ -23,7 +23,7 @@
 
     <form
       class="user-inputs"
-      x-data="{ route: getRandomRoute(), maxAge: 5, swr: 1, sie: 0 }"
+      x-data="{ route: getRandomRoute(), maxAge: 5, swr: 1, sie: 0, cacheErrors: true }"
       @submit.prevent="() => {}"
     >
       <div class="route-section">
@@ -66,16 +66,22 @@
           <span class="short-version">sie</span>:
         </label>
         <input type="number" id="sie-input" x-model="sie" min="0" max="120" />
+
+        <label for="cache-errors">
+          <span class="long-version">cache error responses</span>
+          <span class="short-version">sie</span>:
+        </label>
+        <input type="checkbox" id="cache-errors" x-model="cacheErrors" />
       </div>
 
       <div class="fetch-btns">
         <button
-          x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie })"
+          x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie, cacheErrors })"
         >
           Fetch from worker
         </button>
         <button
-          x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie, error: true })"
+          x-on:click="$store.responsesFromWorker.fetchNew(route, { maxAge, swr, sie, cacheErrors, error: true })"
         >
           Force error from worker
         </button>

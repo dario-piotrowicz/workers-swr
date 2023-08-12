@@ -22,7 +22,7 @@ export default {
       const url = new URL(request.url);
       const path = url.pathname;
 
-      const { maxAge, swr, sie, error } = getDemoValues(request);
+      const { maxAge, swr, sie, error, cacheErrors } = getDemoValues(request);
 
       return new Response(
         `
@@ -44,7 +44,13 @@ export default {
           status: error ? 500 : 200,
           headers: {
             "content-type": "text/html;changeset=UTF-8",
-            "Cache-Control": `max-age=${maxAge}, stale-while-revalidate=${swr}, stale-if-error=${sie}`,
+            "Cache-Control": getResponseCacheControl(
+              maxAge,
+              swr,
+              sie,
+              error,
+              cacheErrors
+            ),
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "*",
           },
@@ -53,6 +59,26 @@ export default {
     }
   ),
 };
+
+function getResponseCacheControl(
+  maxAge: number,
+  swr: number,
+  sie: number,
+  error: boolean,
+  cacheErrors: boolean
+) {
+  const directives = [
+    `max-age=${maxAge}`,
+    `stale-while-revalidate=${swr}`,
+    `stale-if-error=${sie}`,
+  ];
+
+  if (error && !cacheErrors) {
+    directives.push("no-store");
+  }
+
+  return directives.join(", ");
+}
 
 function getDemoValues(request: Request<unknown, CfProperties<unknown>>) {
   const demoValues = JSON.parse(
@@ -69,5 +95,6 @@ function getDemoValues(request: Request<unknown, CfProperties<unknown>>) {
     swr: getDemoIntValue("swr"),
     sie: getDemoIntValue("sie"),
     error: !!demoValues.error,
+    cacheErrors: !!demoValues.cacheErrors,
   };
 }

@@ -7,12 +7,19 @@ document.addEventListener('alpine:init', () => {
       return this.responses[this.responses.length - 1];
     },
  
-    async fetchNew(route, { maxAge, swr, sie, error }) {
+    async fetchNew(route, { maxAge, swr, sie, error, cacheErrors }) {
       const resp = await fetch(
         `https://workers-swr-example-worker.dariopiot.net/${route}`,
         {
           headers: {
-            'x-workers-swr-demo-request-values': `{ "maxAge": ${maxAge}, "swr": ${swr}, "sie": ${sie}, "error": ${error ?? 'false' } }`,
+            'x-workers-swr-demo-request-values':
+              JSON.stringify({
+                maxAge,
+                swr,
+                sie,
+                error,
+                cacheErrors,
+              })
           },
         }
       );
