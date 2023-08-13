@@ -17,6 +17,7 @@
   "packageManager": "npm@8.5.0",
   "workspaces": [
     "library/*",
+    "pages-plugin",
     "packages/*",
     "examples/*"
   ]

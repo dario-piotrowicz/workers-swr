@@ -1,0 +1,12 @@
+{
+  "name": "pages-plugin-swr-example",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "wrangler": "^3.5.0",
+    "pages-plugin-swr": "*"
+  },
+  "scripts": {
+    "deploy": "wrangler pages publish ."
+  }
+}
