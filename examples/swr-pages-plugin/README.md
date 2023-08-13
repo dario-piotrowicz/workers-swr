@@ -1,0 +1,1 @@
+Example deployed at: https://pages-plugin-swr-example.dariopiot.net/
