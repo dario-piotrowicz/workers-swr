@@ -19,9 +19,6 @@ document.addEventListener('alpine:init', () => {
                 sie,
                 error,
               }),
-            // let's add an invalid if-modified-since so that we always receive proper
-            // responses and not 304 ones (https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304)
-            'if-modified-since': '-1',
           },
         }
       );

@@ -44,6 +44,7 @@ export function getResponseCachingChecks(
       isFresh: false,
       shouldBeRevalidated: false,
       shouldOverrideError: false,
+      is304: false,
     };
   }
 
@@ -53,6 +54,7 @@ export function getResponseCachingChecks(
     isFresh: age < maxAge,
     shouldBeRevalidated: age >= maxAge && age < maxAge + (swr ?? 0),
     shouldOverrideError: age >= maxAge && age < maxAge + (sie ?? 0),
+    is304: cachedResponse!.status === 304,
   };
 }
 
@@ -62,10 +64,12 @@ type ResponseCachingChecks =
       isFresh: false;
       shouldBeRevalidated: false;
       shouldOverrideError: false;
+      is304: false;
     }
   | {
       isCached: true;
       isFresh: boolean;
       shouldBeRevalidated: boolean;
       shouldOverrideError: boolean;
+      is304: boolean;
     };

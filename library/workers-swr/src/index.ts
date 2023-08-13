@@ -1,8 +1,18 @@
 import { cacheResponse, revalidateResponse } from "./cache";
 import { generateResponseForUser, getResponseCachingChecks } from "./response";
 
+export type SwrOptions = {
+  /** Whether 304 responses should be returned or not (defaults to false) */
+  enable304Responses: boolean;
+};
+
+const swrDefaultOptions: SwrOptions = {
+  enable304Responses: false,
+};
+
 export function withSWR<Env extends unknown>(
-  fetchHandler: ExportedHandlerFetchHandler<Env, unknown>
+  fetchHandler: ExportedHandlerFetchHandler<Env, unknown>,
+  swrOptions: Partial<SwrOptions> = swrDefaultOptions
 ): ExportedHandlerFetchHandler {
   return async (
     request: Request,
@@ -27,16 +37,25 @@ export function withSWR<Env extends unknown>(
 
     const cachedResponse = await swrCache.match(request);
 
-    const { isCached, isFresh, shouldBeRevalidated, shouldOverrideError } =
-      getResponseCachingChecks(cachedResponse);
+    const {
+      isCached,
+      isFresh,
+      shouldBeRevalidated,
+      shouldOverrideError,
+      is304,
+    } = getResponseCachingChecks(cachedResponse);
 
     if (isCached) {
-      if (isFresh) {
-        return generateResponseForUser(cachedResponse!);
-      }
-      if (shouldBeRevalidated) {
-        revalidateResponse(swrCache, runOriginalFetchHandler, request, ctx);
-        return generateResponseForUser(cachedResponse!);
+      const isNotAllowed304 = is304 && !swrOptions.enable304Responses;
+      const ignoreCachedResponse = isNotAllowed304;
+      if (!ignoreCachedResponse) {
+        if (isFresh) {
+          return generateResponseForUser(cachedResponse!);
+        }
+        if (shouldBeRevalidated) {
+          revalidateResponse(swrCache, runOriginalFetchHandler, request, ctx);
+          return generateResponseForUser(cachedResponse!);
+        }
       }
     }
 
